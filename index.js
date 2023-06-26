@@ -20,7 +20,7 @@ const SOURCE_DIR = core.getInput('source_dir', {
   required: true,
 });
 const DESTINATION_DIR = core.getInput('destination_dir', {
-  required: false,
+  required: true,
 });
 const ENDPOINT = core.getInput('endpoint', {
   required: false,
@@ -36,7 +36,7 @@ if (ENDPOINT) {
 }
 
 const s3 = new S3(s3options);
-const destinationDir = DESTINATION_DIR === '/' ? shortid() : DESTINATION_DIR;
+const destinationDir = DESTINATION_DIR;
 const paths = klawSync(SOURCE_DIR, {
   nodir: true,
 });
@@ -54,22 +54,18 @@ function upload(params) {
 
 function run() {
   const sourceDir = slash(path.join(process.cwd(), SOURCE_DIR));
-  return Promise.all(
-    paths.map((p) => {
-      const fileStream = fs.createReadStream(p.path);
-      const bucketPath = slash(
-        path.join(destinationDir, slash(path.relative(sourceDir, p.path)))
-      );
-      const params = {
-        Bucket: BUCKET,
-        ACL: 'public-read',
-        Body: fileStream,
-        Key: bucketPath,
-        ContentType: lookup(p.path) || 'text/plain',
-      };
-      return upload(params);
-    })
+  const fileStream = fs.createReadStream(p.path);
+  const bucketPath = slash(
+    path.join(destinationDir, slash(path.relative(sourceDir, p.path)))
   );
+  const params = {
+    Bucket: BUCKET,
+    ACL: 'public-read',
+    Body: fileStream,
+    Key: bucketPath,
+    ContentType: lookup(p.path) || 'text/plain',
+  };
+  return upload(params);
 }
 
 run()
