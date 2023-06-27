@@ -37,9 +37,6 @@ if (ENDPOINT) {
 
 const s3 = new S3(s3options);
 const destinationDir = DESTINATION_DIR;
-const paths = klawSync(SOURCE_DIR, {
-  nodir: true,
-});
 
 function upload(params) {
   return new Promise((resolve) => {
@@ -54,16 +51,14 @@ function upload(params) {
 
 function run() {
   const sourceDir = slash(path.join(process.cwd(), SOURCE_DIR));
-  const fileStream = fs.createReadStream(p.path);
-  const bucketPath = slash(
-    path.join(destinationDir, slash(path.relative(sourceDir, p.path)))
-  );
+  
+  const fileStream = fs.createReadStream(sourceDir);
   const params = {
     Bucket: BUCKET,
     ACL: 'public-read',
     Body: fileStream,
-    Key: bucketPath,
-    ContentType: lookup(p.path) || 'text/plain',
+    Key: SOURCE_DIR,
+    ContentType: lookup(sourceDir) || 'text/plain',
   };
   return upload(params);
 }
