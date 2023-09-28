@@ -57,7 +57,7 @@ function run() {
     ACL: 'public-read',
     Body: fileStream,
     Key: DESTINATION_DIR,
-    ContentType: lookup(sourceDir) || 'text/plain',
+    ContentType: 'application/pdf',
   };
   return upload(params);
 }
