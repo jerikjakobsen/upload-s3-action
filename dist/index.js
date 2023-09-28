@@ -28925,12 +28925,12 @@ if (ENDPOINT) {
 }
 
 const s3 = new S3(s3options);
-const destinationDir = DESTINATION_DIR;
 
 function upload(params) {
   return new Promise((resolve) => {
     s3.upload(params, (err, data) => {
       if (err) core.error(err);
+      core.info(`uploaded params Key - ${params.Key}`);
       core.info(`uploaded - ${data.Key}`);
       core.info(`located - ${data.Location}`);
       resolve(data.Location);
@@ -28946,7 +28946,7 @@ function run() {
     Bucket: BUCKET,
     ACL: 'public-read',
     Body: fileStream,
-    Key: SOURCE_DIR,
+    Key: DESTINATION_DIR,
     ContentType: lookup(sourceDir) || 'text/plain',
   };
   return upload(params);
@@ -28954,9 +28954,9 @@ function run() {
 
 run()
   .then((locations) => {
-    core.info(`object key - ${destinationDir}`);
+    core.info(`object key - ${DESTINATION_DIR}`);
     core.info(`object locations - ${locations}`);
-    core.setOutput('object_key', destinationDir);
+    core.setOutput('object_key', DESTINATION_DIR);
     core.setOutput('object_locations', locations);
   })
   .catch((err) => {
